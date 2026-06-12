@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Wedding Camera 💒</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #d4a574;
+      --primary-dark: #b8895a;
+      --bg: #1a1a2e;
+      --bg-light: #16213e;
+      --text: #f5f5f5;
+      --text-muted: #a0a0b0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .hero {
+      max-width: 500px;
+    }
+
+    .hero .rings {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 300;
+      color: var(--primary);
+      letter-spacing: 3px;
+      margin-bottom: 0.5rem;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    .hero .tagline {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+
+    .links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 350px;
+      margin: 0 auto;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(212,165,116,0.2);
+      border-radius: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .link-card:hover {
+      background: rgba(212,165,116,0.1);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .link-card .icon {
+      font-size: 2rem;
+      width: 50px;
+      text-align: center;
+    }
+
+    .link-card .info {
+      text-align: left;
+    }
+
+    .link-card .info h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .link-card .info p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .footer {
+      margin-top: 3rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .footer .heart {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="rings">💍</div>
+    <h1>Wedding Camera</h1>
+    <p class="tagline">Capture every moment from every angle.<br>Guest-powered wedding photography.</p>
+
+    <div class="links">
+      <a href="/camera" class="link-card">
+        <div class="icon">📸</div>
+        <div class="info">
+          <h3>Take Photos</h3>
+          <p>Open the camera and start capturing moments</p>
+        </div>
+      </a>
+
+      <a href="/gallery" class="link-card">
+        <div class="icon">🖼️</div>
+        <div class="info">
+          <h3>View Gallery</h3>
+          <p>Browse all photos from the wedding</p>
+        </div>
+      </a>
+
+      <a href="/admin" class="link-card">
+        <div class="icon">⚙️</div>
+        <div class="info">
+          <h3>Admin Panel</h3>
+          <p>Settings, QR code, and photo management</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Made with <span class="heart">♥</span> for our special day</p>
+  </div>
+</body>
+</html>

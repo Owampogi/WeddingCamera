@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Wedding Camera 📸</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #d4a574;
+      --primary-dark: #b8895a;
+      --bg: #1a1a2e;
+      --bg-light: #16213e;
+      --text: #f5f5f5;
+      --text-muted: #a0a0b0;
+      --success: #4ade80;
+      --danger: #ef4444;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Welcome Screen */
+    .welcome-screen {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+
+    .welcome-screen .emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-screen h1 {
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+      letter-spacing: 2px;
+      color: var(--primary);
+    }
+
+    .welcome-screen h2 {
+      font-size: 1.2rem;
+      font-weight: 300;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .welcome-screen .couple-names {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    .welcome-screen .date {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
+    .name-input-group {
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 1.5rem;
+    }
+
+    .name-input-group label {
+      display: block;
+      text-align: left;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .name-input-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid rgba(212, 165, 116, 0.3);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .name-input-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .name-input-group input::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    .btn {
+      padding: 16px 48px;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(212, 165, 116, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(212, 165, 116, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Camera Screen */
+    .camera-screen {
+      position: relative;
+      background: #000;
+    }
+
+    .camera-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      padding: 16px 20px;
+      padding-top: max(16px, env(safe-area-inset-top));
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shots-counter {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shots-counter .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .shots-counter.warning .dot {
+      background: #f59e0b;
+    }
+
+    .shots-counter.danger .dot {
+      background: var(--danger);
+    }
+
+    .guest-name-badge {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: var(--primary);
+    }
+
+    .camera-viewfinder {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cameraVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #cameraCanvas {
+      display: none;
+    }
+
+    .camera-placeholder {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .camera-placeholder .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .camera-placeholder p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .camera-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      padding: 20px;
+      padding-bottom: max(30px, env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .capture-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .capture-btn::after {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      border-radius: 50%;
+      background: #fff;
+      transition: all 0.2s;
+    }
+
+    .capture-btn:active::after {
+      background: var(--primary);
+      transform: scale(0.9);
+    }
+
+    .capture-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .flip-btn, .gallery-preview-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.5);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .flip-btn:active, .gallery-preview-btn:active {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Preview Screen */
+    .preview-screen {
+      background: #000;
+    }
+
+    .preview-image-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .preview-image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .preview-actions {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 20px;
+      padding-bottom: max(30px, env(safe-area-inset-bottom));
+    }
+
+    .preview-actions .btn {
+      flex: 1;
+      max-width: 200px;
+      text-align: center;
+      padding: 14px 24px;
+    }
+
+    .btn-retake {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-upload {
+      background: linear-gradient(135deg, var(--success), #22c55e);
+      color: #fff;
+    }
+
+    /* Flash effect */
+    .flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #fff;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.1s;
+    }
+
+    .flash.active {
+      opacity: 1;
+    }
+
+    /* Upload progress */
+    .upload-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .upload-overlay.active {
+      display: flex;
+    }
+
+    .upload-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .upload-overlay p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 12px;
+      z-index: 300;
+      transition: transform 0.3s ease;
+      font-size: 0.9rem;
+      text-align: center;
+      max-width: 90%;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      border-left: 3px solid var(--success);
+    }
+
+    .toast.error {
+      border-left: 3px solid var(--danger);
+    }
+
+    /* No shots remaining screen */
+    .no-shots-screen {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+
+    .no-shots-screen .emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .no-shots-screen h2 {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+    }
+
+    .no-shots-screen p {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .no-shots-screen .btn {
+      margin-top: 2rem;
+    }
+
+    /* File input fallback */
+    .file-input-wrapper {
+      position: relative;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .welcome-screen h1 {
+        font-size: 2.5rem;
+      }
+      .welcome-screen .couple-names {
+        font-size: 3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Flash Effect -->
+  <div id="flash" class="flash"></div>
+
+  <!-- Upload Overlay -->
+  <div id="uploadOverlay" class="upload-overlay">
+    <div class="upload-spinner"></div>
+    <p>Uploading your photo...</p>
+  </div>
+
+  <!-- Welcome Screen -->
+  <div id="welcomeScreen" class="screen welcome-screen active">
+    <div class="emoji">📸</div>
+    <div class="couple-names" id="coupleNames">Loading...</div>
+    <h1 id="welcomeTitle">WEDDING CAMERA</h1>
+    <h2 id="welcomeSubtitle"></h2>
+    <p id="weddingDate" class="date"></p>
+
+    <div class="name-input-group">
+      <label for="guestName">Your Name (optional)</label>
+      <input type="text" id="guestName" placeholder="Enter your name..." maxlength="50" autocomplete="name">
+    </div>
+
+    <button class="btn btn-primary" id="startBtn" onclick="startCamera()">
+      📷 Start Taking Photos
+    </button>
+
+    <p style="margin-top: 1.5rem; color: var(--text-muted); font-size: 0.8rem;">
+      You have <strong id="maxShotsDisplay">50</strong> shots available
+    </p>
+  </div>
+
+  <!-- Camera Screen -->
+  <div id="cameraScreen" class="screen camera-screen">
+    <div class="camera-header">
+      <div class="shots-counter" id="shotsCounter">
+        <span class="dot"></span>
+        <span id="shotsText">49 shots left</span>
+      </div>
+      <div class="guest-name-badge" id="guestBadge"></div>
+    </div>
+
+    <div class="camera-viewfinder">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <canvas id="cameraCanvas"></canvas>
+      <div id="cameraPlaceholder" class="camera-placeholder">
+        <div class="icon">📷</div>
+        <p>Tap the button below to take a photo,<br>or use the gallery button to select from your phone</p>
+      </div>
+    </div>
+
+    <div class="camera-controls">
+      <div class="file-input-wrapper">
+        <button class="flip-btn" title="Pick from gallery">🖼️</button>
+        <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+      </div>
+      <button class="capture-btn" id="captureBtn" onclick="capturePhoto()"></button>
+      <button class="flip-btn" id="flipBtn" onclick="flipCamera()" title="Flip camera">🔄</button>
+    </div>
+  </div>
+
+  <!-- Preview Screen -->
+  <div id="previewScreen" class="screen preview-screen">
+    <div class="camera-header">
+      <div></div>
+      <div class="guest-name-badge" id="previewGuestBadge"></div>
+    </div>
+    <div class="preview-image-container">
+      <img id="previewImage" src="" alt="Preview">
+    </div>
+    <div class="preview-actions">
+      <button class="btn btn-retake" onclick="retakePhoto()">Retake</button>
+      <button class="btn btn-upload" onclick="uploadPhoto()">Upload ✓</button>
+    </div>
+  </div>
+
+  <!-- No Shots Remaining Screen -->
+  <div id="noShotsScreen" class="screen no-shots-screen">
+    <div class="emoji">🎉</div>
+    <h2>All Shots Used!</h2>
+    <p>You've used all your photo shots.<br>Thank you for capturing memories!</p>
+    <p style="margin-top: 1rem;">
+      You uploaded <strong id="totalUploaded">0</strong> photos 📸
+    </p>
+    <button class="btn btn-primary" onclick="viewGallery()">View Gallery</button>
+  </div>
+
+  <script>
+    // State
+    let deviceId = localStorage.getItem('wedding_camera_device_id');
+    let guestName = '';
+    let shotsRemaining = 50;
+    let shotsUsed = 0;
+    let maxShots = 50;
+    let currentStream = null;
+    let facingMode = 'environment';
+    let pendingPhoto = null;
+
+    // Generate device ID if not exists
+    if (!deviceId) {
+      deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('wedding_camera_device_id', deviceId);
+    }
+
+    // Initialize
+    async function init() {
+      try {
+        // Load config
+        const configRes = await fetch('/api/config');
+        const config = await configRes.json();
+
+        document.getElementById('coupleNames').textContent = config.coupleName || 'Our Wedding';
+        document.getElementById('welcomeTitle').textContent = 'WEDDING CAMERA';
+        document.getElementById('welcomeSubtitle').textContent = config.subtitle || 'Capture your favorite moments';
+        document.getElementById('maxShotsDisplay').textContent = config.maxShots;
+
+        if (config.weddingDate) {
+          document.getElementById('weddingDate').textContent = config.weddingDate;
+        }
+
+        // Check device shots
+        const checkRes = await fetch(`/api/check-shots?deviceId=${encodeURIComponent(deviceId)}`);
+        const checkData = await checkRes.json();
+
+        shotsRemaining = checkData.shotsRemaining;
+        shotsUsed = checkData.shotsUsed;
+        maxShots = checkData.maxShots;
+
+        updateShotsCounter();
+
+        if (shotsRemaining <= 0) {
+          showScreen('noShotsScreen');
+          document.getElementById('totalUploaded').textContent = shotsUsed;
+        }
+
+      } catch (err) {
+        console.error('Init error:', err);
+      }
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    function updateShotsCounter() {
+      const counter = document.getElementById('shotsCounter');
+      const text = document.getElementById('shotsText');
+
+      text.textContent = `${shotsRemaining} shot${shotsRemaining !== 1 ? 's' : ''} left`;
+
+      counter.className = 'shots-counter';
+      if (shotsRemaining <= 5) {
+        counter.classList.add('danger');
+      } else if (shotsRemaining <= 10) {
+        counter.classList.add('warning');
+      }
+    }
+
+    async function startCamera() {
+      guestName = document.getElementById('guestName').value.trim() || 'Anonymous Guest';
+      document.getElementById('guestBadge').textContent = guestName;
+
+      if (shotsRemaining <= 0) {
+        showToast('No shots remaining!', 'error');
+        showScreen('noShotsScreen');
+        document.getElementById('totalUploaded').textContent = shotsUsed;
+        return;
+      }
+
+      showScreen('cameraScreen');
+      await initCamera();
+    }
+
+    async function initCamera() {
+      const video = document.getElementById('cameraVideo');
+      const placeholder = document.getElementById('cameraPlaceholder');
+
+      try {
+        if (currentStream) {
+          currentStream.getTracks().forEach(t => t.stop());
+        }
+
+        const constraints = {
+          video: {
+            facingMode: facingMode,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: false
+        };
+
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = currentStream;
+        video.style.display = 'block';
+        placeholder.style.display = 'none';
+      } catch (err) {
+        console.error('Camera error:', err);
+        video.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = `
+          <div class="icon">📷</div>
+          <p>Camera access denied or not available.<br>Use the gallery button below to select photos from your phone.</p>
+        `;
+      }
+    }
+
+    async function flipCamera() {
+      facingMode = facingMode === 'environment' ? 'user' : 'environment';
+      await initCamera();
+    }
+
+    // Compress image client-side to save storage
+    function compressImage(source, sourceWidth, sourceHeight) {
+      const canvas = document.createElement('canvas');
+      const maxWidth = 1920;
+      const ratio = Math.min(1, maxWidth / sourceWidth);
+      canvas.width = sourceWidth * ratio;
+      canvas.height = sourceHeight * ratio;
+
+      const ctx = canvas.getContext('2d');
+      if (source instanceof HTMLVideoElement) {
+        ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+      }
+
+      // 70% JPEG quality gives ~200-400KB per photo
+      return new Promise(resolve =>
+        canvas.toBlob(resolve, 'image/jpeg', 0.7)
+      );
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('cameraVideo');
+
+      if (!video.srcObject) {
+        // No camera, trigger file input
+        document.getElementById('fileInput').click();
+        return;
+      }
+
+      // Flash effect
+      const flash = document.getElementById('flash');
+      flash.classList.add('active');
+      setTimeout(() => flash.classList.remove('active'), 150);
+
+      // Compress video frame
+      compressImage(video, video.videoWidth, video.videoHeight).then((blob) => {
+        pendingPhoto = blob;
+        const url = URL.createObjectURL(blob);
+        document.getElementById('previewImage').src = url;
+        document.getElementById('previewGuestBadge').textContent = guestName;
+        showScreen('previewScreen');
+      });
+    }
+
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Compress gallery-selected images too
+      const img = new Image();
+      img.onload = () => {
+        compressImage(img, img.naturalWidth, img.naturalHeight).then((blob) => {
+          pendingPhoto = blob;
+          const url = URL.createObjectURL(blob);
+          document.getElementById('previewImage').src = url;
+          document.getElementById('previewGuestBadge').textContent = guestName;
+          showScreen('previewScreen');
+        });
+      };
+      img.src = URL.createObjectURL(file);
+
+      // Reset file input
+      event.target.value = '';
+    }
+
+    function retakePhoto() {
+      pendingPhoto = null;
+      showScreen('cameraScreen');
+    }
+
+    async function uploadPhoto() {
+      if (!pendingPhoto) return;
+
+      const overlay = document.getElementById('uploadOverlay');
+      overlay.classList.add('active');
+
+      const formData = new FormData();
+      formData.append('photo', pendingPhoto, pendingPhoto.name || 'wedding-photo.jpg');
+      formData.append('deviceId', deviceId);
+      formData.append('guestName', guestName);
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        overlay.classList.remove('active');
+
+        if (data.success) {
+          shotsUsed = data.shotsUsed;
+          shotsRemaining = data.shotsRemaining;
+          updateShotsCounter();
+
+          showToast(`Photo uploaded! ${shotsRemaining} shots remaining`, 'success');
+
+          pendingPhoto = null;
+
+          if (shotsRemaining <= 0) {
+            setTimeout(() => {
+              showScreen('noShotsScreen');
+              document.getElementById('totalUploaded').textContent = shotsUsed;
+            }, 1500);
+          } else {
+            showScreen('cameraScreen');
+          }
+        } else {
+          showToast(data.error || 'Upload failed', 'error');
+          if (data.shotsRemaining !== undefined && data.shotsRemaining <= 0) {
+            setTimeout(() => {
+              showScreen('noShotsScreen');
+              document.getElementById('totalUploaded').textContent = shotsUsed;
+            }, 1500);
+          }
+        }
+      } catch (err) {
+        overlay.classList.remove('active');
+        showToast('Upload failed. Please try again.', 'error');
+        console.error('Upload error:', err);
+      }
+    }
+
+    function viewGallery() {
+      window.location.href = '/gallery';
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>

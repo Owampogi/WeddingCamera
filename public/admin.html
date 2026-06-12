@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Wedding Camera - Admin</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #d4a574;
+      --primary-dark: #b8895a;
+      --bg: #1a1a2e;
+      --bg-light: #16213e;
+      --card-bg: #1e2a4a;
+      --text: #f5f5f5;
+      --text-muted: #a0a0b0;
+      --success: #4ade80;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .admin-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .admin-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .admin-header h1 {
+      font-size: 1.8rem;
+      font-weight: 300;
+      color: var(--primary);
+      letter-spacing: 2px;
+    }
+
+    .admin-header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .admin-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-nav button {
+      padding: 10px 20px;
+      border: 1px solid rgba(212,165,116,0.3);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .admin-nav button.active, .admin-nav button:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .stat-card .number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid rgba(212,165,116,0.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.3s;
+      font-family: inherit;
+    }
+
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 15px rgba(212,165,116,0.3);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    /* QR Code Section */
+    .qr-section {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .qr-section img {
+      max-width: 300px;
+      border-radius: 12px;
+      background: #fff;
+      padding: 16px;
+      margin: 1rem 0;
+    }
+
+    .qr-url {
+      background: rgba(0,0,0,0.3);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--primary);
+      word-break: break-all;
+      margin: 1rem 0;
+    }
+
+    .qr-instructions {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.8;
+      text-align: left;
+      max-width: 500px;
+      margin: 1.5rem auto 0;
+    }
+
+    .qr-instructions li {
+      margin-bottom: 0.5rem;
+    }
+
+    /* Photo List */
+    .photo-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .photo-item {
+      background: var(--bg);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-item img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    .photo-item .photo-meta {
+      padding: 0.75rem;
+    }
+
+    .photo-item .photo-meta .guest {
+      font-size: 0.85rem;
+      color: var(--primary);
+    }
+
+    .photo-item .photo-meta .time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .photo-item .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(239,68,68,0.8);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .photo-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    /* Device list */
+    .device-list {
+      list-style: none;
+    }
+
+    .device-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .device-item:last-child {
+      border-bottom: none;
+    }
+
+    .device-info .device-id {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: monospace;
+    }
+
+    .device-info .device-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .device-shots {
+      text-align: right;
+    }
+
+    .device-shots .count {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .device-shots .label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 14px 24px;
+      border-radius: 8px;
+      z-index: 1000;
+      font-size: 0.9rem;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+      max-width: 350px;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast.success {
+      background: var(--success);
+      color: #000;
+    }
+
+    .toast.error {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* Print styles for QR */
+    @media print {
+      body { background: #fff; color: #000; }
+      .admin-nav, .btn, .toast { display: none; }
+      .qr-section img { max-width: 400px; }
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .photo-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>⚙️ Wedding Camera Admin</h1>
+      <p>Manage your wedding camera settings</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="number" id="statPhotos">-</div>
+        <div class="label">Photos</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statDevices">-</div>
+        <div class="label">Guests</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="statMaxShots">-</div>
+        <div class="label">Max Shots</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="admin-nav">
+      <button class="active" onclick="showTab('settings', this)">⚙️ Settings</button>
+      <button onclick="showTab('qr', this)">📱 QR Code</button>
+      <button onclick="showTab('photos', this)">📷 Photos</button>
+      <button onclick="showTab('devices', this)">📱 Devices</button>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settingsTab" class="tab-content active">
+      <div class="card">
+        <h2>Wedding Details</h2>
+        <form id="configForm" onsubmit="saveConfig(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="coupleName">Couple Names</label>
+              <input type="text" id="coupleName" placeholder="e.g. John & Jane">
+            </div>
+            <div class="form-group">
+              <label for="weddingDate">Wedding Date</label>
+              <input type="text" id="weddingDate" placeholder="e.g. June 15, 2026">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="welcomeMessage">Welcome Message</label>
+            <input type="text" id="welcomeMessage" placeholder="e.g. Welcome to our wedding! 📸">
+          </div>
+          <div class="form-group">
+            <label for="subtitle">Subtitle</label>
+            <input type="text" id="subtitle" placeholder="e.g. Capture your favorite moments">
+          </div>
+          <div class="form-group">
+            <label for="maxShots">Max Shots Per Guest</label>
+            <input type="number" id="maxShots" min="1" max="999" placeholder="50">
+          </div>
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- QR Code Tab -->
+    <div id="qrTab" class="tab-content">
+      <div class="card qr-section">
+        <h2>📱 QR Code for Guests</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">Print this QR code and place it on tables at your wedding</p>
+        <div id="qrLoading" style="padding: 2rem;">
+          <p style="color: var(--text-muted);">Generating QR code...</p>
+        </div>
+        <img id="qrImage" style="display:none;" alt="QR Code">
+        <div class="qr-url" id="qrUrl"></div>
+        <div class="btn-group" style="justify-content: center;">
+          <button class="btn btn-primary" onclick="printQR()">🖨️ Print QR Code</button>
+          <button class="btn btn-secondary" onclick="downloadQR()">⬇ Download QR</button>
+        </div>
+        <div class="qr-instructions">
+          <strong>Setup Instructions:</strong>
+          <ol>
+            <li>Make sure your server is running and accessible on your network</li>
+            <li>Find your computer's local IP address (shown in terminal)</li>
+            <li>Print this QR code or display it on screens at the venue</li>
+            <li>Guests scan with their phone camera to open the camera app</li>
+            <li>Each guest gets 50 shots (configurable in Settings)</li>
+            <li>Photos appear in real-time on the <a href="/gallery" style="color: var(--primary);">Gallery page</a></li>
+          </ol>
+          <br>
+          <strong>🌐 For internet access (outside local network):</strong>
+          <p style="margin-top: 0.5rem;">Use a service like <a href="https://ngrok.com" target="_blank" style="color: var(--primary);">ngrok</a>, <a href="https://localtunnel.github.io" target="_blank" style="color: var(--primary);">localtunnel</a>, or deploy to a cloud server.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Photos Tab -->
+    <div id="photosTab" class="tab-content">
+      <div class="card">
+        <h2>📷 All Photos</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;" id="photoCount">Loading...</p>
+        <div id="photoList" class="photo-list"></div>
+        <div id="noPhotos" style="display:none; text-align:center; padding: 2rem; color: var(--text-muted);">
+          No photos yet. They'll appear here as guests take them!
+        </div>
+      </div>
+    </div>
+
+    <!-- Devices Tab -->
+    <div id="devicesTab" class="tab-content">
+      <div class="card">
+        <h2>📱 Connected Devices</h2>
+        <ul id="deviceList" class="device-list"></ul>
+        <div id="noDevices" style="display:none; text-align:center; padding: 2rem; color: var(--text-muted);">
+          No devices connected yet.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    let currentConfig = {};
+
+    async function init() {
+      await Promise.all([loadConfig(), loadStats(), loadPhotos(), loadDevices()]);
+    }
+
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        currentConfig = await res.json();
+
+        document.getElementById('coupleName').value = currentConfig.coupleName || '';
+        document.getElementById('weddingDate').value = currentConfig.weddingDate || '';
+        document.getElementById('welcomeMessage').value = currentConfig.welcomeMessage || '';
+        document.getElementById('subtitle').value = currentConfig.subtitle || '';
+        document.getElementById('maxShots').value = currentConfig.maxShots || 50;
+      } catch (err) {
+        console.error('Config load error:', err);
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const stats = await res.json();
+
+        document.getElementById('statPhotos').textContent = stats.totalPhotos;
+        document.getElementById('statDevices').textContent = stats.totalDevices;
+        document.getElementById('statMaxShots').textContent = stats.maxShotsPerDevice;
+      } catch (err) {
+        console.error('Stats load error:', err);
+      }
+    }
+
+    async function loadPhotos() {
+      try {
+        const res = await fetch('/api/photos');
+        const photos = await res.json();
+
+        document.getElementById('photoCount').textContent = `${photos.length} photos total`;
+        const list = document.getElementById('photoList');
+        const noPhotos = document.getElementById('noPhotos');
+
+        if (photos.length === 0) {
+          list.style.display = 'none';
+          noPhotos.style.display = 'block';
+          return;
+        }
+
+        list.style.display = 'grid';
+        noPhotos.style.display = 'none';
+
+        list.innerHTML = photos.map(photo => `
+          <div class="photo-item">
+            <img src="${photo.thumbnail || photo.url}" alt="${photo.guestName}" loading="lazy">
+            <button class="delete-btn" onclick="deletePhoto('${encodeURIComponent(photo.id)}')" title="Delete">✕</button>
+            <div class="photo-meta">
+              <div class="guest">${escapeHtml(photo.guestName)}</div>
+              <div class="time">${new Date(photo.timestamp).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        console.error('Photos load error:', err);
+      }
+    }
+
+    async function loadDevices() {
+      try {
+        const res = await fetch('/api/stats');
+        const stats = await res.json();
+        
+        // We need to get device details from shots data
+        // For now we'll show stats
+        const photosRes = await fetch('/api/photos');
+        const photos = await photosRes.json();
+        
+        // Group by device
+        const devices = {};
+        photos.forEach(photo => {
+          if (!devices[photo.deviceId]) {
+            devices[photo.deviceId] = { count: 0, firstPhoto: photo.timestamp, guestName: photo.guestName };
+          }
+          devices[photo.deviceId].count++;
+        });
+
+        const list = document.getElementById('deviceList');
+        const noDevices = document.getElementById('noDevices');
+
+        const deviceEntries = Object.entries(devices);
+
+        if (deviceEntries.length === 0) {
+          list.style.display = 'none';
+          noDevices.style.display = 'block';
+          return;
+        }
+
+        list.style.display = 'block';
+        noDevices.style.display = 'none';
+
+        list.innerHTML = deviceEntries.map(([id, data]) => `
+          <li class="device-item">
+            <div class="device-info">
+              <div class="device-id">${id.substring(0, 20)}...</div>
+              <div class="device-time">First seen: ${new Date(data.firstPhoto).toLocaleString()}</div>
+              <div style="font-size: 0.85rem; color: var(--primary); margin-top: 4px;">${escapeHtml(data.guestName)}</div>
+            </div>
+            <div class="device-shots">
+              <div class="count">${data.count}</div>
+              <div class="label">photos</div>
+            </div>
+          </li>
+        `).join('');
+      } catch (err) {
+        console.error('Devices load error:', err);
+      }
+    }
+
+    async function saveConfig(event) {
+      event.preventDefault();
+
+      const config = {
+        coupleName: document.getElementById('coupleName').value,
+        weddingDate: document.getElementById('weddingDate').value,
+        welcomeMessage: document.getElementById('welcomeMessage').value,
+        subtitle: document.getElementById('subtitle').value,
+        maxShots: parseInt(document.getElementById('maxShots').value) || 50
+      };
+
+      try {
+        const res = await fetch('/api/config', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+
+        if (res.ok) {
+          currentConfig = config;
+          showToast('Settings saved successfully!', 'success');
+          loadStats();
+        } else {
+          showToast('Failed to save settings', 'error');
+        }
+      } catch (err) {
+        showToast('Error saving settings', 'error');
+      }
+    }
+
+    async function deletePhoto(photoId) {
+      if (!confirm('Are you sure you want to delete this photo?')) return;
+
+      try {
+        const res = await fetch(`/api/photos?id=${photoId}`, { method: 'DELETE' });
+        if (res.ok) {
+          showToast('Photo deleted', 'success');
+          loadPhotos();
+          loadStats();
+        } else {
+          showToast('Failed to delete photo', 'error');
+        }
+      } catch (err) {
+        showToast('Error deleting photo', 'error');
+      }
+    }
+
+    function showTab(tabName, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.admin-nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById(`${tabName}Tab`).classList.add('active');
+      btn.classList.add('active');
+
+      if (tabName === 'qr') loadQR();
+      if (tabName === 'photos') loadPhotos();
+      if (tabName === 'devices') loadDevices();
+    }
+
+    async function loadQR() {
+      try {
+        const res = await fetch('/api/qrcode');
+        const data = await res.json();
+
+        const img = document.getElementById('qrImage');
+        img.src = data.qrCode;
+        img.style.display = 'block';
+        document.getElementById('qrUrl').textContent = data.url;
+        document.getElementById('qrLoading').style.display = 'none';
+      } catch (err) {
+        document.getElementById('qrLoading').innerHTML = '<p style="color: var(--danger);">Failed to generate QR code</p>';
+      }
+    }
+
+    function printQR() {
+      window.print();
+    }
+
+    function downloadQR() {
+      const img = document.getElementById('qrImage');
+      const a = document.createElement('a');
+      a.href = img.src;
+      a.download = 'wedding-camera-qr.png';
+      a.click();
+    }
+
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    init();
+  </script>
+</body>
+</html>

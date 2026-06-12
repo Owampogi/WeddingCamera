@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/camera", "dest": "/public/camera.html" },
+    { "src": "/gallery", "dest": "/public/gallery.html" },
+    { "src": "/admin", "dest": "/public/admin.html" },
+    { "src": "/manifest.json", "dest": "/public/manifest.json" },
+    { "src": "/sw.js", "dest": "/public/sw.js" },
+    { "src": "/(.*)", "dest": "/public/$1" }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "node_modules/**"
+    }
+  }
+}

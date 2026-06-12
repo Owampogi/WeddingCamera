@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>Wedding Gallery 💒</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #d4a574;
+      --primary-dark: #b8895a;
+      --bg: #1a1a2e;
+      --bg-light: #16213e;
+      --card-bg: #1e2a4a;
+      --text: #f5f5f5;
+      --text-muted: #a0a0b0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .gallery-header {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(212,165,116,0.05) 0%, transparent 50%);
+      animation: shimmer 8s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(5%, 5%); }
+    }
+
+    .gallery-header .couple-names {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: var(--primary);
+      font-family: Georgia, 'Times New Roman', serif;
+      position: relative;
+      z-index: 1;
+    }
+
+    .gallery-header .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .gallery-header .date {
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+      font-size: 0.95rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 1.5rem;
+      background: rgba(0,0,0,0.2);
+      border-bottom: 1px solid rgba(212,165,116,0.1);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    /* Navigation */
+    .gallery-nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: rgba(0,0,0,0.1);
+    }
+
+    .nav-btn {
+      padding: 8px 20px;
+      border: 1px solid rgba(212,165,116,0.3);
+      border-radius: 20px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .nav-btn.active, .nav-btn:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Photo Grid */
+    .gallery-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+    }
+
+    .photo-grid.layout-mosaic {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .photo-grid.layout-large {
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+
+    .photo-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      aspect-ratio: 1;
+    }
+
+    .photo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .photo-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .photo-card .photo-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 40px 12px 12px;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .photo-card:hover .photo-info {
+      opacity: 1;
+    }
+
+    .photo-info .guest-name {
+      font-size: 0.85rem;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .photo-info .photo-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-state .emoji {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .empty-state .btn {
+      margin-top: 2rem;
+      display: inline-block;
+      padding: 14px 36px;
+      border: none;
+      border-radius: 50px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .empty-state .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 30px rgba(212,165,116,0.4);
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: all 0.2s;
+    }
+
+    .lightbox-close:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .lightbox-info {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-muted);
+    }
+
+    .lightbox-info .guest-name {
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .lightbox-info .photo-time {
+      font-size: 0.85rem;
+    }
+
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .lightbox-nav:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .lightbox-nav.prev {
+      left: 20px;
+    }
+
+    .lightbox-nav.next {
+      right: 20px;
+    }
+
+    /* Auto-refresh indicator */
+    .refresh-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 50;
+    }
+
+    .refresh-indicator .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Footer */
+    .gallery-footer {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 2rem;
+    }
+
+    .gallery-footer .heart {
+      color: #ef4444;
+      font-size: 1.2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .photo-grid.layout-large {
+        grid-template-columns: 1fr;
+      }
+
+      .gallery-header .couple-names {
+        font-size: 1.8rem;
+      }
+
+      .stats-bar {
+        gap: 1rem;
+      }
+
+      .stat-number {
+        font-size: 1.4rem;
+      }
+
+      .lightbox-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="gallery-header">
+    <div class="couple-names" id="coupleNames">Loading...</div>
+    <div class="subtitle">Wedding Photo Gallery</div>
+    <div class="date" id="weddingDate"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-number" id="totalPhotos">0</div>
+      <div class="stat-label">Photos</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="totalGuests">0</div>
+      <div class="stat-label">Guests</div>
+    </div>
+  </div>
+
+  <!-- Layout Options -->
+  <div class="gallery-nav">
+    <button class="nav-btn active" onclick="setLayout('grid', this)">Grid</button>
+    <button class="nav-btn" onclick="setLayout('mosaic', this)">Mosaic</button>
+    <button class="nav-btn" onclick="setLayout('large', this)">Large</button>
+    <button class="nav-btn" onclick="downloadAll()">⬇ Download All</button>
+  </div>
+
+  <!-- Gallery -->
+  <div class="gallery-container">
+    <div id="loadingState" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading photos...</p>
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display:none;">
+      <div class="emoji">📷</div>
+      <h2>No Photos Yet</h2>
+      <p>Photos will appear here as guests capture<br>moments from the wedding!</p>
+      <a href="/camera" class="btn">Take the First Photo</a>
+    </div>
+
+    <div id="photoGrid" class="photo-grid" style="display:none;"></div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">‹</button>
+    <button class="lightbox-nav next" onclick="navigateLightbox(1)">›</button>
+    <div class="lightbox-content">
+      <img id="lightboxImage" src="" alt="Photo">
+    </div>
+    <div class="lightbox-info">
+      <div class="guest-name" id="lightboxGuest"></div>
+      <div class="photo-time" id="lightboxTime"></div>
+    </div>
+  </div>
+
+  <!-- Auto-refresh indicator -->
+  <div class="refresh-indicator">
+    <span class="pulse"></span>
+    Auto-refreshing
+  </div>
+
+  <!-- Footer -->
+  <div class="gallery-footer">
+    <p>Made with <span class="heart">♥</span> for our special day</p>
+    <p style="margin-top: 0.5rem;">Share your photos: <a href="/camera" style="color: var(--primary);">/camera</a></p>
+  </div>
+
+  <script>
+    let allPhotos = [];
+    let currentLightboxIndex = 0;
+    let currentLayout = 'grid';
+    let refreshInterval;
+
+    // Load config and photos
+    async function init() {
+      try {
+        const configRes = await fetch('/api/config');
+        const config = await configRes.json();
+
+        document.getElementById('coupleNames').textContent = config.coupleName || 'Our Wedding';
+        if (config.weddingDate) {
+          document.getElementById('weddingDate').textContent = config.weddingDate;
+        }
+      } catch (err) {
+        console.error('Config load error:', err);
+      }
+
+      await loadPhotos();
+      startAutoRefresh();
+    }
+
+    async function loadPhotos() {
+      try {
+        const [photosRes, statsRes] = await Promise.all([
+          fetch('/api/photos'),
+          fetch('/api/stats')
+        ]);
+
+        allPhotos = await photosRes.json();
+        const stats = await statsRes.json();
+
+        document.getElementById('totalPhotos').textContent = stats.totalPhotos;
+        document.getElementById('totalGuests').textContent = stats.totalDevices;
+
+        renderPhotos();
+      } catch (err) {
+        console.error('Photos load error:', err);
+      }
+    }
+
+    function renderPhotos() {
+      const grid = document.getElementById('photoGrid');
+      const empty = document.getElementById('emptyState');
+      const loading = document.getElementById('loadingState');
+
+      loading.style.display = 'none';
+
+      if (allPhotos.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      grid.innerHTML = allPhotos.map((photo, index) => `
+        <div class="photo-card" onclick="openLightbox(${index})">
+          <img src="${photo.thumbnail || photo.url}" 
+               alt="${photo.guestName}" 
+               loading="lazy"
+               onerror="this.src='${photo.url}'">
+          <div class="photo-info">
+            <div class="guest-name">${escapeHtml(photo.guestName)}</div>
+            <div class="photo-time">${formatTime(photo.timestamp)}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function setLayout(layout, btn) {
+      currentLayout = layout;
+      const grid = document.getElementById('photoGrid');
+      grid.className = 'photo-grid';
+      if (layout !== 'grid') {
+        grid.classList.add(`layout-${layout}`);
+      }
+
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function openLightbox(index) {
+      currentLightboxIndex = index;
+      const photo = allPhotos[index];
+
+      document.getElementById('lightboxImage').src = photo.url;
+      document.getElementById('lightboxGuest').textContent = photo.guestName;
+      document.getElementById('lightboxTime').textContent = formatTime(photo.timestamp);
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function navigateLightbox(direction) {
+      currentLightboxIndex += direction;
+      if (currentLightboxIndex < 0) currentLightboxIndex = allPhotos.length - 1;
+      if (currentLightboxIndex >= allPhotos.length) currentLightboxIndex = 0;
+      openLightbox(currentLightboxIndex);
+    }
+
+    function downloadAll() {
+      allPhotos.forEach((photo, i) => {
+        setTimeout(() => {
+          const a = document.createElement('a');
+          a.href = photo.url;
+          a.download = `${photo.guestName}_${i + 1}.jpg`;
+          a.click();
+        }, i * 300); // Stagger downloads
+      });
+    }
+
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+
+      if (diff < 60000) return 'Just now';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function startAutoRefresh() {
+      refreshInterval = setInterval(loadPhotos, 10000); // Refresh every 10 seconds
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('lightbox').classList.contains('active')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+      }
+    });
+
+    // Swipe support for lightbox
+    let touchStartX = 0;
+    document.getElementById('lightbox').addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    document.getElementById('lightbox').addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        navigateLightbox(diff > 0 ? 1 : -1);
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>
