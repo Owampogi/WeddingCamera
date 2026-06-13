@@ -664,15 +664,17 @@
           body: JSON.stringify(config)
         });
 
+        const data = await res.json();
+
         if (res.ok) {
           currentConfig = config;
           showToast('Settings saved successfully!', 'success');
           loadStats();
         } else {
-          showToast('Failed to save settings', 'error');
+          showToast(data.error || 'Failed to save settings', 'error');
         }
       } catch (err) {
-        showToast('Error saving settings', 'error');
+        showToast('Error saving settings: ' + err.message, 'error');
       }
     }
 

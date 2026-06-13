@@ -53,10 +53,21 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-      // Parse body manually since Vercel may not auto-parse
+      // Parse body - handle different body formats from Vercel
       let body = req.body;
-      if (typeof body === 'string') {
+      if (Buffer.isBuffer(body)) {
+        body = JSON.parse(body.toString());
+      } else if (typeof body === 'string') {
         body = JSON.parse(body);
+      } else if (!body || typeof body !== 'object') {
+        // Fallback: collect body from stream
+        const chunks = [];
+        await new Promise((resolve, reject) => {
+          req.on('data', chunk => chunks.push(chunk));
+          req.on('end', resolve);
+          req.on('error', reject);
+        });
+        body = JSON.parse(Buffer.concat(chunks).toString());
       }
 
       const { error } = await supabase
