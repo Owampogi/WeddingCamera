@@ -309,6 +309,8 @@
     /* Preview Screen */
     .preview-screen {
       background: #000;
+      height: 100vh;
+      height: 100dvh;
     }
 
     .preview-image-container {
@@ -317,6 +319,8 @@
       justify-content: center;
       align-items: center;
       padding: 1rem;
+      overflow: hidden;
+      min-height: 0;
     }
 
     .preview-image-container img {
@@ -551,7 +555,7 @@
     <div class="camera-controls">
       <div class="file-input-wrapper">
         <button class="flip-btn" title="Pick from gallery">🖼️</button>
-        <input type="file" id="fileInput" accept="image/*" capture="environment" onchange="handleFileSelect(event)">
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
       </div>
       <button class="capture-btn" id="captureBtn" onclick="capturePhoto()"></button>
       <button class="flip-btn" id="flipBtn" onclick="flipCamera()" title="Flip camera">🔄</button>

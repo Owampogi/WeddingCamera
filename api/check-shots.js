@@ -21,7 +21,21 @@ module.exports = async function handler(req, res) {
 
   try {
     const deviceId = req.query.deviceId || 'unknown';
-    const maxShots = parseInt(process.env.WEDDING_MAX_SHOTS) || 50;
+    let maxShots = parseInt(process.env.WEDDING_MAX_SHOTS) || 50;
+
+    // Try to get maxShots from database config
+    try {
+      const { data: configData } = await supabase
+        .from('config')
+        .select('max_shots')
+        .eq('id', 'main')
+        .single();
+      if (configData && configData.max_shots) {
+        maxShots = configData.max_shots;
+      }
+    } catch (configErr) {
+      // Config table may not exist, use env default
+    }
 
     const { count } = await supabase
       .from('photos')
