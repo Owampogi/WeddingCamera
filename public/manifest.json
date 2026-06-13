@@ -1,7 +1,7 @@
 {
-  "name": "Wedding Camera",
-  "short_name": "WeddingCam",
-  "description": "Capture wedding moments from every guest's perspective",
+  "name": "Joshua + Shiela + Elian Mateo Celebration",
+  "short_name": "Mateo Celebration",
+  "description": "Your presence is much appreciated. Help us immortalize and capture this moment",
   "start_url": "/camera",
   "display": "standalone",
   "orientation": "portrait",
