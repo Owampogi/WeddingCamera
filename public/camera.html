@@ -778,6 +778,8 @@
     function retakePhoto() {
       pendingPhoto = null;
       showScreen('cameraScreen');
+      // Reinitialize camera when returning from preview
+      initCamera();
     }
 
     async function uploadPhoto() {
@@ -817,6 +819,8 @@
             }, 1500);
           } else {
             showScreen('cameraScreen');
+            // Reinitialize camera after upload so user can take more photos
+            initCamera();
           }
         } else {
           showToast(data.error || 'Upload failed', 'error');
